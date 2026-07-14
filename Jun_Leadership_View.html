@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Leadership View — Balance Scorecard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+  :root {
+    --navy:#0f1f3d;--navy-mid:#1a3260;--blue:#1e4db7;--blue-light:#2e63d4;
+    --accent:#f59e0b;--accent2:#10b981;--red:#ef4444;--amber:#f59e0b;--green:#10b981;
+    --surface:#f0f4ff;--card:#ffffff;--border:#d1daf5;--text:#0f1f3d;--text-muted:#6b7a99;
+    --r1:#ef4444;--r2:#f97316;--r3:#f59e0b;--r4:#84cc16;--r5:#10b981;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;}
+  /* HEADER */
+  .header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 60%,var(--blue) 100%);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--accent);}
+  .header-left{display:flex;align-items:center;gap:12px;}
+  .header-icon{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .header-title{color:white;}
+  .header-title h1{font-size:18px;font-weight:700;letter-spacing:-0.3px;}
+  .header-title p{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
+  .header-badge{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:white;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;}
+  /* TABS */
+  .tab-bar{background:var(--card);border-bottom:2px solid var(--border);padding:0 16px;display:flex;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tab-bar::-webkit-scrollbar{display:none;}
+  .tab{padding:12px 16px;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+  .tab:hover{color:var(--blue);}
+  .tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+  .tab-count{background:var(--surface);color:var(--text-muted);font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;}
+  .tab.active .tab-count{background:var(--blue);color:white;}
+  /* CONTENT */
+  .content{padding:16px;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+  /* SUMMARY STRIP */
+  .summary-strip{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+  .summary-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;}
+  .summary-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .summary-icon.blue{background:#dbeafe;}
+  .summary-icon.green{background:#d1fae5;}
+  .summary-icon.amber{background:#fef3c7;}
+  .summary-icon.purple{background:#ede9fe;}
+  .summary-label{font-size:10px;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;}
+  .summary-value{font-size:20px;font-weight:800;color:var(--navy);line-height:1.1;}
+  .summary-sub{font-size:10px;color:var(--text-muted);margin-top:1px;}
+  /* PANELS */
+  .full-col{margin-bottom:16px;}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .panel-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+  .panel-title{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;}
+  .panel-sub{font-size:11px;color:var(--text-muted);font-weight:500;}
+  .panel-body{padding:14px 16px;}
+  /* PARAM AVG */
+  .param-avg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .param-avg-card{background:var(--surface);border-radius:10px;padding:10px;text-align:center;}
+  .param-avg-label{font-size:9px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;line-height:1.3;}
+  .param-avg-score{font-size:20px;font-weight:800;line-height:1;margin-bottom:3px;}
+  .param-avg-bar{height:4px;border-radius:2px;background:var(--border);overflow:hidden;}
+  .param-avg-fill{height:100%;border-radius:2px;}
+  /* INSIGHTS */
+  .insights-grid{display:grid;grid-template-columns:1fr;gap:10px;}
+  .insight-card{background:var(--surface);border-radius:10px;padding:12px;border-left:3px solid var(--blue);}
+  .insight-card.warn{border-left-color:var(--amber);}
+  .insight-card.good{border-left-color:var(--green);}
+  .insight-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:3px;}
+  .insight-text{font-size:12px;font-weight:600;color:var(--navy);line-height:1.4;}
+  .insight-text span{color:var(--blue);font-weight:700;}
+  .insight-card.warn .insight-text span{color:var(--amber);}
+  .insight-card.good .insight-text span{color:var(--green);}
+  /* SCORE TABLE */
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .table-scroll::-webkit-scrollbar{height:3px;}
+  .table-scroll::-webkit-scrollbar-track{background:var(--surface);}
+  .table-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .score-table{width:100%;border-collapse:collapse;font-size:11px;}
+  .score-table th{background:var(--surface);color:var(--text-muted);font-weight:600;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;padding:7px 8px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;}
+  .score-table td{padding:8px;border-bottom:1px solid #f0f4ff;vertical-align:middle;}
+  .score-table tr:last-child td{border-bottom:none;}
+  .score-table .name-cell{font-weight:600;color:var(--navy);min-width:120px;max-width:160px;font-size:11px;}
+  .rank-badge{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+  .rank-1{background:#fef3c7;color:#92400e;}
+  .rank-2{background:#f1f5f9;color:#475569;}
+  .rank-3{background:#fde8d8;color:#9a3412;}
+  .rank-other{background:var(--surface);color:var(--text-muted);}
+  .r-pill{display:inline-flex;align-items:center;justify-content:center;width:22px;height:20px;border-radius:4px;font-size:10px;font-weight:700;color:white;}
+  .r-1{background:var(--r1);}
+  .r-2{background:var(--r2);}
+  .r-3{background:var(--r3);color:#78350f;}
+  .r-4{background:var(--r4);color:#365314;}
+  .r-5{background:var(--r5);}
+  .total-score{font-family:'DM Mono',monospace;font-weight:700;font-size:12px;}
+  .score-bar-wrap{display:flex;align-items:center;gap:6px;}
+  .score-bar{height:5px;border-radius:3px;background:var(--surface);width:50px;overflow:hidden;flex-shrink:0;}
+  .score-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue-light),var(--accent2));}
+  /* HEATMAP */
+  .heatmap-table{width:100%;border-collapse:collapse;font-size:10px;}
+  .heatmap-table th{background:var(--surface);color:var(--text-muted);font-weight:600;font-size:9px;text-transform:uppercase;letter-spacing:0.3px;padding:6px 4px;text-align:center;border-bottom:2px solid var(--border);white-space:nowrap;}
+  .heatmap-table th:first-child{text-align:left;padding-left:10px;min-width:120px;}
+  .heatmap-table td{padding:5px 3px;border-bottom:1px solid #f0f4ff;text-align:center;vertical-align:middle;}
+  .heatmap-table td:first-child{text-align:left;padding-left:10px;font-weight:600;font-size:10px;color:var(--navy);white-space:nowrap;}
+  .heatmap-cell{width:24px;height:20px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;}
+  /* LEGEND */
+  .legend{display:flex;gap:10px;flex-wrap:wrap;padding:10px 14px;background:var(--surface);border-top:1px solid var(--border);}
+  .legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);font-weight:500;}
+  .legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+  /* DESKTOP OVERRIDES */
+  @media(min-width:600px){
+    .content{padding:24px 32px;}
+    .summary-strip{grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+    .param-avg-grid{grid-template-columns:repeat(5,1fr);gap:10px;}
+    .insights-grid{grid-template-columns:repeat(3,1fr);gap:12px;}
+    .header{padding:20px 32px;}
+    .header-title h1{font-size:22px;}
+    .tab-bar{padding:0 32px;}
+    .tab{padding:14px 22px;}
+    .full-col{margin-bottom:20px;}
+    .panel-header{padding:14px 20px;}
+    .panel-body{padding:16px 20px;}
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">📊</div>
+    <div class="header-title">
+      <h1>Leadership View — Balance Scorecard</h1>
+      <p>Full Performance Overview · Jun'26</p>
+    </div>
+  </div>
+  <div class="header-badge">Jun'26 · Leadership View</div>
+</div>
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('csm',this)">🏢 Cluster Sales Manager <span class="tab-count">44</span></div>
+  <div class="tab " onclick="switchTab('tm',this)">📍 TM &amp; ARH <span class="tab-count">11</span></div>
+  <div class="tab " onclick="switchTab('rh',this)">🌟 Regional Head <span class="tab-count">3</span></div>
+</div>
+<div class="content">
+
+  <div class="tab-panel active" id="panel-csm">
+    <div class="summary-strip">
+      <div class="summary-card"><div class="summary-icon blue">👥</div><div><div class="summary-label">Total</div><div class="summary-value">44</div><div class="summary-sub">Cluster Sales Managers</div></div></div>
+      <div class="summary-card"><div class="summary-icon green">⭐</div><div><div class="summary-label">Avg Score</div><div class="summary-value">2.59</div><div class="summary-sub">Out of 5.00</div></div></div>
+      <div class="summary-card"><div class="summary-icon amber">🏆</div><div><div class="summary-label">Top Performer</div><div class="summary-value" style="font-size:12px;line-height:1.3;">Sandesh Moghe</div><div class="summary-sub">Score: 4.65</div></div></div>
+      <div class="summary-card"><div class="summary-icon purple">⚠️</div><div><div class="summary-label">Below 2.0</div><div class="summary-value">11</div><div class="summary-sub">Need attention</div></div></div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">📊 Parameter Average Ratings</span></div>
+        <div class="panel-body"><div class="param-avg-grid" id="csm-param-avgs"></div></div>
+      </div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">💡 Key Insights</span></div>
+        <div class="panel-body"><div class="insights-grid" id="csm-insights"></div></div>
+      </div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">🏅 Top 5 Score Ranking</span>
+          <span class="panel-sub">Top 5 of 44</span>
+        </div>
+        <div class="panel-body">
+          <div class="table-scroll">
+            <table class="score-table">
+              <thead><tr>
+                <th>#</th><th>Name</th>
+                <th>Topline</th><th>Mkt Shr</th><th>Persist</th><th>ER</th>
+                <th>FLS</th><th>4NOP</th><th>SP</th><th>SMP</th><th>Term</th><th>NPAR</th>
+                <th>Score</th>
+              </tr></thead>
+              <tbody id="csm-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">🌡️ Performance Heatmap</span>
+          <span class="panel-sub">All 44 employees</span>
+        </div>
+        <div class="table-scroll">
+          <table class="heatmap-table">
+            <thead><tr>
+              <th>Name</th>
+              <th>Topline</th><th>Mkt Shr</th><th>Persist</th><th>ER</th>
+              <th>FLS</th><th>4NOP</th><th>SP</th><th>SMP</th><th>Term</th><th>NPAR</th><th>Total</th>
+            </tr></thead>
+            <tbody id="csm-heatmap-body"></tbody>
+          </table>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r1)"></div>1-Poor</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r2)"></div>2</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r3)"></div>3</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r4)"></div>4</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r5)"></div>5-Excellent</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel " id="panel-tm">
+    <div class="summary-strip">
+      <div class="summary-card"><div class="summary-icon blue">👥</div><div><div class="summary-label">Total</div><div class="summary-value">11</div><div class="summary-sub">Territory Managers &amp; ARH</div></div></div>
+      <div class="summary-card"><div class="summary-icon green">⭐</div><div><div class="summary-label">Avg Score</div><div class="summary-value">2.23</div><div class="summary-sub">Out of 5.00</div></div></div>
+      <div class="summary-card"><div class="summary-icon amber">🏆</div><div><div class="summary-label">Top Performer</div><div class="summary-value" style="font-size:12px;line-height:1.3;">Reddymasi Ramesh</div><div class="summary-sub">Score: 3.43</div></div></div>
+      <div class="summary-card"><div class="summary-icon purple">⚠️</div><div><div class="summary-label">Below 2.0</div><div class="summary-value">5</div><div class="summary-sub">Need attention</div></div></div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">📊 Parameter Average Ratings</span></div>
+        <div class="panel-body"><div class="param-avg-grid" id="tm-param-avgs"></div></div>
+      </div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">💡 Key Insights</span></div>
+        <div class="panel-body"><div class="insights-grid" id="tm-insights"></div></div>
+      </div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">🏅 Top 5 Score Ranking</span>
+          <span class="panel-sub">Top 5 of 11</span>
+        </div>
+        <div class="panel-body">
+          <div class="table-scroll">
+            <table class="score-table">
+              <thead><tr>
+                <th>#</th><th>Name</th>
+                <th>Topline</th><th>Mkt Shr</th><th>Persist</th><th>ER</th>
+                <th>FLS</th><th>4NOP</th><th>SP</th><th>SMP</th><th>Term</th><th>NPAR</th>
+                <th>Score</th>
+              </tr></thead>
+              <tbody id="tm-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">🌡️ Performance Heatmap</span>
+          <span class="panel-sub">All 11 employees</span>
+        </div>
+        <div class="table-scroll">
+          <table class="heatmap-table">
+            <thead><tr>
+              <th>Name</th>
+              <th>Topline</th><th>Mkt Shr</th><th>Persist</th><th>ER</th>
+              <th>FLS</th><th>4NOP</th><th>SP</th><th>SMP</th><th>Term</th><th>NPAR</th><th>Total</th>
+            </tr></thead>
+            <tbody id="tm-heatmap-body"></tbody>
+          </table>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r1)"></div>1-Poor</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r2)"></div>2</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r3)"></div>3</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r4)"></div>4</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r5)"></div>5-Excellent</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel " id="panel-rh">
+    <div class="summary-strip">
+      <div class="summary-card"><div class="summary-icon blue">👥</div><div><div class="summary-label">Total</div><div class="summary-value">3</div><div class="summary-sub">Regional Heads</div></div></div>
+      <div class="summary-card"><div class="summary-icon green">⭐</div><div><div class="summary-label">Avg Score</div><div class="summary-value">1.64</div><div class="summary-sub">Out of 5.00</div></div></div>
+      <div class="summary-card"><div class="summary-icon amber">🏆</div><div><div class="summary-label">Top Performer</div><div class="summary-value" style="font-size:12px;line-height:1.3;">Ashok Prasad</div><div class="summary-sub">Score: 2.0</div></div></div>
+      <div class="summary-card"><div class="summary-icon purple">⚠️</div><div><div class="summary-label">Below 2.0</div><div class="summary-value">2</div><div class="summary-sub">Need attention</div></div></div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">📊 Parameter Average Ratings</span></div>
+        <div class="panel-body"><div class="param-avg-grid" id="rh-param-avgs"></div></div>
+      </div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">💡 Key Insights</span></div>
+        <div class="panel-body"><div class="insights-grid" id="rh-insights"></div></div>
+      </div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">🏅 Top 5 Score Ranking</span>
+          <span class="panel-sub">Top 5 of 3</span>
+        </div>
+        <div class="panel-body">
+          <div class="table-scroll">
+            <table class="score-table">
+              <thead><tr>
+                <th>#</th><th>Name</th>
+                <th>Topline</th><th>Mkt Shr</th><th>Persist</th><th>ER</th>
+                <th>FLS</th><th>4NOP</th><th>SP</th><th>SMP</th><th>Term</th><th>NPAR</th>
+                <th>Score</th>
+              </tr></thead>
+              <tbody id="rh-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="full-col">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">🌡️ Performance Heatmap</span>
+          <span class="panel-sub">All 3 employees</span>
+        </div>
+        <div class="table-scroll">
+          <table class="heatmap-table">
+            <thead><tr>
+              <th>Name</th>
+              <th>Topline</th><th>Mkt Shr</th><th>Persist</th><th>ER</th>
+              <th>FLS</th><th>4NOP</th><th>SP</th><th>SMP</th><th>Term</th><th>NPAR</th><th>Total</th>
+            </tr></thead>
+            <tbody id="rh-heatmap-body"></tbody>
+          </table>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r1)"></div>1-Poor</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r2)"></div>2</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r3)"></div>3</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r4)"></div>4</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--r5)"></div>5-Excellent</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+
+const PARAMS = ["Topline", "Market Share", "Persistency", "ER", "FLS Activation", "4 NOP/FLS", "SP Activation", "SMP Compliance", "Prod Mix (Term)", "Prod Mix (NPAR)"];
+const ALL_DATA = {
+  csm: [{"rank": 1, "name": "Sandesh Moghe", "ratings": [5, 4, 5, 5, 5, 5, 5, 5, 1, 5], "scores": [1.25, 0.6, 0.75, 0.5, 0.38, 0.25, 0.38, 0.25, 0.05, 0.25], "total": 4.65}, {"rank": 2, "name": "Mahesh Mulik", "ratings": [3, 5, 5, 5, 5, 1, 5, 5, 5, 1], "scores": [0.75, 0.75, 0.75, 0.5, 0.38, 0.05, 0.38, 0.25, 0.25, 0.05], "total": 4.1}, {"rank": 3, "name": "Mohammed Ihteshamuddin", "ratings": [5, 3, 5, 5, 2, 1, 2, 5, 2, 3], "scores": [1.25, 0.45, 0.75, 0.5, 0.15, 0.05, 0.15, 0.25, 0.1, 0.15], "total": 3.8}, {"rank": 4, "name": "Aman", "ratings": [3, 5, 3, 5, 5, 1, 5, 3, 4, 4], "scores": [0.75, 0.75, 0.45, 0.5, 0.38, 0.05, 0.38, 0.15, 0.2, 0.2], "total": 3.8}, {"rank": 5, "name": "Prashant Pandurang Powar", "ratings": [4, 2, 5, 5, 5, 1, 5, 1, 1, 5], "scores": [1.0, 0.3, 0.75, 0.5, 0.38, 0.05, 0.38, 0.05, 0.05, 0.25], "total": 3.7}, {"rank": 6, "name": "Aneesh S", "ratings": [5, 3, 5, 4, 5, 1, 2, 1, 1, 1], "scores": [1.25, 0.45, 0.75, 0.4, 0.38, 0.05, 0.15, 0.05, 0.05, 0.05], "total": 3.58}, {"rank": 7, "name": "Ankush Goyal", "ratings": [5, 5, 1, 4, 5, 1, 3, 1, 1, 4], "scores": [1.25, 0.75, 0.15, 0.4, 0.38, 0.05, 0.23, 0.05, 0.05, 0.2], "total": 3.5}, {"rank": 8, "name": "Arvinder Singh", "ratings": [5, 3, 1, 5, 2, 1, 2, 5, 1, 5], "scores": [1.25, 0.45, 0.15, 0.5, 0.15, 0.05, 0.15, 0.25, 0.05, 0.25], "total": 3.25}, {"rank": 9, "name": "Uggar Sen", "ratings": [5, 4, 1, 5, 3, 1, 1, 1, 1, 5], "scores": [1.25, 0.6, 0.15, 0.5, 0.23, 0.05, 0.08, 0.05, 0.05, 0.25], "total": 3.2}, {"rank": 10, "name": "Ramesh Kanojanavar", "ratings": [3, 4, 4, 5, 2, 1, 5, 1, 1, 1], "scores": [0.75, 0.6, 0.6, 0.5, 0.15, 0.05, 0.38, 0.05, 0.05, 0.05], "total": 3.18}, {"rank": 11, "name": "Kaviarasu A", "ratings": [4, 2, 5, 5, 1, 1, 2, 1, 1, 5], "scores": [1.0, 0.3, 0.75, 0.5, 0.08, 0.05, 0.15, 0.05, 0.05, 0.25], "total": 3.18}, {"rank": 12, "name": "Akash Sharma", "ratings": [5, 4, 1, 4, 2, 1, 2, 1, 1, 5], "scores": [1.25, 0.6, 0.15, 0.4, 0.15, 0.05, 0.15, 0.05, 0.05, 0.25], "total": 3.1}, {"rank": 13, "name": "Himanshu Jasavantkumar Sompura", "ratings": [2, 5, 3, 5, 5, 1, 2, 3, 1, 2], "scores": [0.5, 0.75, 0.45, 0.5, 0.38, 0.05, 0.15, 0.15, 0.05, 0.1], "total": 3.08}, {"rank": 14, "name": "Harsh Aggarwal", "ratings": [5, 2, 1, 4, 5, 1, 2, 1, 1, 5], "scores": [1.25, 0.3, 0.15, 0.4, 0.38, 0.05, 0.15, 0.05, 0.05, 0.25], "total": 3.03}, {"rank": 15, "name": "Aakash Vijay Chandarana", "ratings": [5, 4, 1, 3, 5, 1, 1, 1, 1, 1], "scores": [1.25, 0.6, 0.15, 0.3, 0.38, 0.05, 0.08, 0.05, 0.05, 0.05], "total": 2.95}, {"rank": 16, "name": "Nagaraju Uppula", "ratings": [1, 4, 1, 5, 5, 1, 3, 5, 5, 3], "scores": [0.25, 0.6, 0.15, 0.5, 0.38, 0.05, 0.23, 0.25, 0.25, 0.15], "total": 2.8}, {"rank": 17, "name": "Shekhar Subhash Hargavkar", "ratings": [1, 1, 5, 5, 5, 1, 2, 1, 5, 5], "scores": [0.25, 0.15, 0.75, 0.5, 0.38, 0.05, 0.15, 0.05, 0.25, 0.25], "total": 2.78}, {"rank": 18, "name": "Pushpak Saha", "ratings": [3, 1, 1, 4, 5, 1, 5, 1, 4, 5], "scores": [0.75, 0.15, 0.15, 0.4, 0.38, 0.05, 0.38, 0.05, 0.2, 0.25], "total": 2.75}, {"rank": 19, "name": "M Dinesh", "ratings": [2, 5, 3, 5, 1, 1, 1, 1, 1, 5], "scores": [0.5, 0.75, 0.45, 0.5, 0.08, 0.05, 0.08, 0.05, 0.05, 0.25], "total": 2.75}, {"rank": 20, "name": "Kumar Gaurav", "ratings": [3, 4, 1, 4, 2, 1, 2, 1, 1, 5], "scores": [0.75, 0.6, 0.15, 0.4, 0.15, 0.05, 0.15, 0.05, 0.05, 0.25], "total": 2.6}, {"rank": 21, "name": "Soumya Dasgupta", "ratings": [3, 1, 1, 4, 5, 1, 2, 5, 1, 5], "scores": [0.75, 0.15, 0.15, 0.4, 0.38, 0.05, 0.15, 0.25, 0.05, 0.25], "total": 2.58}, {"rank": 22, "name": "V.S. Anbuselvan", "ratings": [3, 1, 3, 4, 3, 1, 2, 5, 1, 1], "scores": [0.75, 0.15, 0.45, 0.4, 0.23, 0.05, 0.15, 0.25, 0.05, 0.05], "total": 2.53}, {"rank": 23, "name": "Abhijit Bharatrao Lokhande", "ratings": [1, 2, 1, 5, 5, 1, 2, 5, 5, 5], "scores": [0.25, 0.3, 0.15, 0.5, 0.38, 0.05, 0.15, 0.25, 0.25, 0.25], "total": 2.53}, {"rank": 24, "name": "Mukesh Kumar Sharma", "ratings": [4, 1, 1, 3, 5, 1, 1, 1, 1, 5], "scores": [1.0, 0.15, 0.15, 0.3, 0.38, 0.05, 0.08, 0.05, 0.05, 0.25], "total": 2.45}, {"rank": 25, "name": "Adithya S r", "ratings": [1, 1, 4, 5, 1, 1, 3, 5, 5, 1], "scores": [0.25, 0.15, 0.6, 0.5, 0.08, 0.05, 0.23, 0.25, 0.25, 0.05], "total": 2.4}, {"rank": 26, "name": "Vimalraj V", "ratings": [1, 1, 5, 5, 2, 1, 1, 5, 1, 1], "scores": [0.25, 0.15, 0.75, 0.5, 0.15, 0.05, 0.08, 0.25, 0.05, 0.05], "total": 2.28}, {"rank": 27, "name": "Abdul Aziz", "ratings": [2, 2, 1, 5, 2, 1, 1, 1, 5, 5], "scores": [0.5, 0.3, 0.15, 0.5, 0.15, 0.05, 0.08, 0.05, 0.25, 0.25], "total": 2.28}, {"rank": 28, "name": "R Krishna Priya", "ratings": [1, 1, 5, 5, 1, 1, 1, 1, 1, 5], "scores": [0.25, 0.15, 0.75, 0.5, 0.08, 0.05, 0.08, 0.05, 0.05, 0.25], "total": 2.2}, {"rank": 29, "name": "Hemangi Sunil Kadam", "ratings": [3, 1, 3, 5, 1, 1, 1, 1, 1, 1], "scores": [0.75, 0.15, 0.45, 0.5, 0.08, 0.05, 0.08, 0.05, 0.05, 0.05], "total": 2.2}, {"rank": 30, "name": "Jigna Bhanushali", "ratings": [1, 1, 3, 3, 5, 1, 2, 1, 3, 5], "scores": [0.25, 0.15, 0.45, 0.3, 0.38, 0.05, 0.15, 0.05, 0.15, 0.25], "total": 2.18}, {"rank": 31, "name": "Shreyas Kusha Suvarna", "ratings": [3, 1, 2, 4, 1, 1, 1, 1, 5, 1], "scores": [0.75, 0.15, 0.3, 0.4, 0.08, 0.05, 0.08, 0.05, 0.25, 0.05], "total": 2.15}, {"rank": 32, "name": "Yasin Mahamadali Desai", "ratings": [1, 1, 3, 4, 1, 1, 2, 5, 2, 5], "scores": [0.25, 0.15, 0.45, 0.4, 0.08, 0.05, 0.15, 0.25, 0.1, 0.25], "total": 2.13}, {"rank": 33, "name": "Mohammad Janisar Ansari", "ratings": [1, 1, 1, 5, 5, 1, 1, 5, 1, 5], "scores": [0.25, 0.15, 0.15, 0.5, 0.38, 0.05, 0.08, 0.25, 0.05, 0.25], "total": 2.1}, {"rank": 34, "name": "Baigadda Allabakash", "ratings": [1, 1, 1, 5, 1, 1, 3, 5, 5, 1], "scores": [0.25, 0.15, 0.15, 0.5, 0.08, 0.05, 0.23, 0.25, 0.25, 0.05], "total": 1.95}, {"rank": 35, "name": "Sagar Jadhav", "ratings": [1, 1, 4, 3, 1, 1, 1, 1, 5, 2], "scores": [0.25, 0.15, 0.6, 0.3, 0.08, 0.05, 0.08, 0.05, 0.25, 0.1], "total": 1.9}, {"rank": 36, "name": "Manvendra Srivastava", "ratings": [1, 1, 3, 3, 1, 1, 1, 1, 1, 5], "scores": [0.25, 0.15, 0.45, 0.3, 0.08, 0.05, 0.08, 0.05, 0.05, 0.25], "total": 1.7}, {"rank": 37, "name": "Abdullah", "ratings": [1, 1, 1, 4, 1, 1, 1, 1, 5, 5], "scores": [0.25, 0.15, 0.15, 0.4, 0.08, 0.05, 0.08, 0.05, 0.25, 0.25], "total": 1.7}, {"rank": 38, "name": "Shah Darshak", "ratings": [1, 1, 1, 5, 2, 1, 1, 1, 5, 1], "scores": [0.25, 0.15, 0.15, 0.5, 0.15, 0.05, 0.08, 0.05, 0.25, 0.05], "total": 1.68}, {"rank": 39, "name": "Prateek Kumar Singh", "ratings": [1, 1, 1, 5, 1, 1, 1, 1, 1, 5], "scores": [0.25, 0.15, 0.15, 0.5, 0.08, 0.05, 0.08, 0.05, 0.05, 0.25], "total": 1.6}, {"rank": 40, "name": "Krunal Ashokkumar Solanki", "ratings": [1, 1, 1, 5, 1, 1, 1, 1, 4, 2], "scores": [0.25, 0.15, 0.15, 0.5, 0.08, 0.05, 0.08, 0.05, 0.2, 0.1], "total": 1.6}, {"rank": 41, "name": "Anil Shahji Kadam", "ratings": [1, 1, 1, 4, 1, 1, 2, 1, 2, 4], "scores": [0.25, 0.15, 0.15, 0.4, 0.08, 0.05, 0.15, 0.05, 0.1, 0.2], "total": 1.58}, {"rank": 42, "name": "Sumit Sachdeva", "ratings": [1, 1, 1, 4, 1, 1, 1, 1, 1, 5], "scores": [0.25, 0.15, 0.15, 0.4, 0.08, 0.05, 0.08, 0.05, 0.05, 0.25], "total": 1.5}, {"rank": 43, "name": "Samir Sitaram Durgavali", "ratings": [1, 1, 1, 4, 2, 1, 2, 1, 1, 1], "scores": [0.25, 0.15, 0.15, 0.4, 0.15, 0.05, 0.15, 0.05, 0.05, 0.05], "total": 1.45}, {"rank": 44, "name": "Varsha Soni", "ratings": [1, 1, 1, 4, 1, 1, 1, 1, 1, 1], "scores": [0.25, 0.15, 0.15, 0.4, 0.08, 0.05, 0.08, 0.05, 0.05, 0.05], "total": 1.3}],
+  tm:  [{"rank": 1, "name": "Reddymasi Ramesh", "ratings": [3, 4, 3, 5, 3, 1, 4, 3, 4, 4], "scores": [0.75, 0.6, 0.45, 0.5, 0.23, 0.05, 0.3, 0.15, 0.2, 0.2], "total": 3.43}, {"rank": 2, "name": "Amit Kumar", "ratings": [5, 4, 1, 3, 2, 1, 2, 1, 1, 4], "scores": [1.25, 0.6, 0.15, 0.3, 0.15, 0.05, 0.15, 0.05, 0.05, 0.2], "total": 2.95}, {"rank": 3, "name": "Nitin Patil", "ratings": [1, 1, 5, 5, 3, 1, 3, 1, 2, 5], "scores": [0.25, 0.15, 0.75, 0.5, 0.23, 0.05, 0.23, 0.05, 0.1, 0.25], "total": 2.55}, {"rank": 4, "name": "Venkatesh D", "ratings": [3, 2, 4, 4, 1, 1, 1, 1, 1, 1], "scores": [0.75, 0.3, 0.6, 0.4, 0.08, 0.05, 0.08, 0.05, 0.05, 0.05], "total": 2.4}, {"rank": 5, "name": "Ashish Kumar Rathi", "ratings": [3, 3, 1, 4, 2, 1, 1, 1, 1, 5], "scores": [0.75, 0.45, 0.15, 0.4, 0.15, 0.05, 0.08, 0.05, 0.05, 0.25], "total": 2.38}, {"rank": 6, "name": "Shailendra Ratnakar Pawar", "ratings": [3, 1, 2, 3, 1, 1, 1, 1, 5, 1], "scores": [0.75, 0.15, 0.3, 0.3, 0.08, 0.05, 0.08, 0.05, 0.25, 0.05], "total": 2.05}, {"rank": 7, "name": "Ajay Nair", "ratings": [1, 3, 1, 5, 2, 1, 1, 1, 3, 1], "scores": [0.25, 0.45, 0.15, 0.5, 0.15, 0.05, 0.08, 0.05, 0.15, 0.05], "total": 1.88}, {"rank": 8, "name": "Krishnendu Chakraborty", "ratings": [1, 1, 1, 3, 3, 1, 2, 5, 2, 5], "scores": [0.25, 0.15, 0.15, 0.3, 0.23, 0.05, 0.15, 0.25, 0.1, 0.25], "total": 1.88}, {"rank": 9, "name": "Ashish Kumar", "ratings": [3, 1, 1, 1, 2, 1, 1, 1, 1, 5], "scores": [0.75, 0.15, 0.15, 0.1, 0.15, 0.05, 0.08, 0.05, 0.05, 0.25], "total": 1.78}, {"rank": 10, "name": "Hiranmay Paik", "ratings": [1, 1, 2, 1, 3, 1, 1, 1, 5, 4], "scores": [0.25, 0.15, 0.3, 0.1, 0.23, 0.05, 0.08, 0.05, 0.25, 0.2], "total": 1.65}, {"rank": 11, "name": "Asim Nandkishor Shukla", "ratings": [1, 1, 1, 5, 2, 1, 2, 1, 1, 2], "scores": [0.25, 0.15, 0.15, 0.5, 0.15, 0.05, 0.15, 0.05, 0.05, 0.1], "total": 1.6}],
+  rh:  [{"rank": 1, "name": "Ashok Prasad", "ratings": [3, 2, 1, 1, 2, 1, 2, 1, 1, 5], "scores": [0.75, 0.3, 0.15, 0.1, 0.15, 0.05, 0.15, 0.05, 0.05, 0.25], "total": 2.0}, {"rank": 2, "name": "Avinash Verma", "ratings": [1, 1, 2, 1, 2, 1, 2, 1, 4, 2], "scores": [0.25, 0.15, 0.3, 0.1, 0.15, 0.05, 0.15, 0.05, 0.2, 0.1], "total": 1.5}, {"rank": 3, "name": "Swapnil Pawar", "ratings": [1, 1, 2, 1, 2, 1, 1, 1, 4, 2], "scores": [0.25, 0.15, 0.3, 0.1, 0.15, 0.05, 0.08, 0.05, 0.2, 0.1], "total": 1.43}]
+};
+const PARAM_AVGS = {
+  csm: [2.5, 2.18, 2.41, 4.43, 2.84, 1.09, 2.09, 2.27, 2.32, 3.45],
+  tm:  [2.27, 2.0, 2.0, 3.55, 2.18, 1.0, 1.73, 1.55, 2.36, 3.36],
+  rh:  [1.67, 1.33, 1.67, 1.0, 2.0, 1.0, 1.67, 1.0, 3.0, 3.0]
+};
+const INSIGHTS = {
+  csm: {"weak": "4 NOP/FLS", "weakVal": 1.09, "strong": "ER", "strongVal": 4.43, "below2": 11, "total": 44},
+  tm:  {"weak": "4 NOP/FLS", "weakVal": 1.0, "strong": "ER", "strongVal": 3.55, "below2": 5, "total": 11},
+  rh:  {"weak": "ER", "weakVal": 1.0, "strong": "Prod Mix (Term)", "strongVal": 3.0, "below2": 2, "total": 3}
+};
+
+function ratingColor(r){const c=["#9ca3af","#ef4444","#f97316","#f59e0b","#84cc16","#10b981"];return c[r]||c[0];}
+function rankClass(r){if(r===1)return"rank-1";if(r===2)return"rank-2";if(r===3)return"rank-3";return"rank-other";}
+
+function buildScoreTable(tab,data){
+  const tbody=document.getElementById(tab+"-tbody");
+  if(!tbody)return;
+  tbody.innerHTML="";
+  data.slice(0,5).forEach((p,i)=>{
+    const pct=(p.total/5*100).toFixed(0);
+    const bar=`<div class="score-bar-wrap"><span class="total-score">${p.total.toFixed(2)}</span><div class="score-bar"><div class="score-bar-fill" style="width:${pct}%"></div></div></div>`;
+    tbody.innerHTML+=`<tr><td><span class="rank-badge ${rankClass(i+1)}">${i+1}</span></td><td class="name-cell">${p.name}</td>${p.ratings.map(r=>`<td><span class="r-pill r-${r}">${r}</span></td>`).join('')}<td>${bar}</td></tr>`;
+  });
+}
+
+function buildHeatmap(tab,data){
+  const tbody=document.getElementById(tab+"-heatmap-body");
+  if(!tbody)return;
+  tbody.innerHTML="";
+  data.forEach(p=>{
+    const cells=p.ratings.map(r=>`<td><div class="heatmap-cell" style="background:${ratingColor(r)}">${r}</div></td>`).join('');
+    const tc=p.total>=3.5?"#10b981":p.total>=2.5?"#2e63d4":"#ef4444";
+    tbody.innerHTML+=`<tr><td>${p.name}</td>${cells}<td><span style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:${tc}">${p.total.toFixed(2)}</span></td></tr>`;
+  });
+}
+
+function buildParamAvgs(tab,avgs){
+  const c=document.getElementById(tab+"-param-avgs");
+  if(!c)return;
+  c.innerHTML="";
+  PARAMS.forEach((p,i)=>{
+    const v=avgs[i];
+    const color=v>=4?"#10b981":v>=3?"#2e63d4":v>=2?"#f59e0b":"#ef4444";
+    const pct=(v/5*100).toFixed(0);
+    c.innerHTML+=`<div class="param-avg-card"><div class="param-avg-label">${p}</div><div class="param-avg-score" style="color:${color}">${v.toFixed(1)}</div><div class="param-avg-bar"><div class="param-avg-fill" style="width:${pct}%;background:${color}"></div></div></div>`;
+  });
+}
+
+function buildInsights(tab,ins){
+  const c=document.getElementById(tab+"-insights");
+  if(!c)return;
+  const pctBelow=((ins.below2/ins.total)*100).toFixed(0);
+  c.innerHTML=`
+    <div class="insight-card warn"><div class="insight-label">⚠️ Weakest Parameter</div><div class="insight-text"><span>${ins.weak}</span> avg rating of <span>${ins.weakVal}</span> needs focus</div></div>
+    <div class="insight-card good"><div class="insight-label">✅ Strongest Parameter</div><div class="insight-text"><span>${ins.strong}</span> leads with avg rating <span>${ins.strongVal}</span></div></div>
+    <div class="insight-card ${ins.below2>0?'warn':'good'}"><div class="insight-label">📉 Below 2.0 Score</div><div class="insight-text"><span>${ins.below2}</span> of ${ins.total} (${pctBelow}%) need performance improvement</div></div>`;
+}
+
+function switchTab(tab,el){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  el.classList.add('active');
+}
+
+  ["csm"].forEach(tab => { buildScoreTable(tab,ALL_DATA[tab]); buildHeatmap(tab,ALL_DATA[tab]); buildParamAvgs(tab,PARAM_AVGS[tab]); buildInsights(tab,INSIGHTS[tab]); });
+  ["tm"].forEach(tab => { buildScoreTable(tab,ALL_DATA[tab]); buildHeatmap(tab,ALL_DATA[tab]); buildParamAvgs(tab,PARAM_AVGS[tab]); buildInsights(tab,INSIGHTS[tab]); });
+  ["rh"].forEach(tab => { buildScoreTable(tab,ALL_DATA[tab]); buildHeatmap(tab,ALL_DATA[tab]); buildParamAvgs(tab,PARAM_AVGS[tab]); buildInsights(tab,INSIGHTS[tab]); });
+</script>
+</body>
+</html>
